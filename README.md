@@ -12,6 +12,19 @@ dense stereo (provided), sparse (feature-point based) or some other variant.
 Extra credit is available for detecting other types of object.
 * Performance is more important than efficiency.
 
+## Marks
+
+* any image pre-filtering or optimization performed (or similar first stage processing)
+to improve either/both object detection or stereo depth estimation  [10]
+* effective integration of (existing) object detection and dense stereo ranging [10]
+* object range estimation strategy for challenging conditions   [10]
+* general performance [20]
+* good code [5]
+* discussion / detail of solution design and choices made in report [10]
+* qualitative and quantitative evidence of performance [10]
+* additional credit is given for an alternative sparse stereo based ranging approach, another variant approach to 
+stereo-based ranging, and the use of heuristics or advanced processing / optimisation to improve performance.
+
 ## Notes
 * Automatic detection of objects and the estimation of their distance from the vehicle
 within stereo video imagery from an on-board facing stereo camera.

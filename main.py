@@ -3,13 +3,13 @@ import cv2
 from my_yolo import YOLO
 from my_stereo_disparity import Stereo
 
-root = "images"
-left_dir = "left"
-right_dir = "right"
+MASTER_PATH_TO_DATASET = "images"
+LEFT_DIR = "left"
+RIGHT_DIR = "right"
 
 def images(start=""):
 
-    left_path, right_path = os.path.join(root, left_dir), os.path.join(root, right_dir)
+    left_path, right_path = os.path.join(MASTER_PATH_TO_DATASET, LEFT_DIR), os.path.join(MASTER_PATH_TO_DATASET, RIGHT_DIR)
 
     for left_file in os.listdir(left_path):
 
@@ -24,7 +24,7 @@ def images(start=""):
 
         if left_file[-4:] == ".png" and os.path.isfile(right_file_path):
 
-            yield cv2.imread(left_file_path, cv2.IMREAD_COLOR), cv2.imread(right_file_path, cv2.IMREAD_COLOR)
+            yield left_file_path, right_file_path
 
 yolo = YOLO()
 stereo = Stereo()
@@ -32,10 +32,17 @@ stereo = Stereo()
 crop_disparity = True
 pause_playback = False
 
-for left, right in images():
+for left_file_path, right_file_path in images():
+
+    print(left_file_path)
+
+    left = cv2.imread(left_file_path, cv2.IMREAD_COLOR)
+    right = cv2.imread(right_file_path, cv2.IMREAD_COLOR)
 
     distance_map = stereo.distance(left, right)
     class_IDs, confidences, boxes = yolo.predict(left)
+
+    nearest_object = 0
 
     for i, box in enumerate(boxes):
 
