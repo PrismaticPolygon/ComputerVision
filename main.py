@@ -28,7 +28,9 @@ def images(start=""):
 
 yolo = YOLO()
 stereo = Stereo()
-# And we'll make a stereo object, naturally.
+
+crop_disparity = True
+pause_playback = False
 
 for left, right in images():
 
@@ -47,4 +49,16 @@ for left, right in images():
 
     cv2.imshow("Result", left)
 
-    cv2.waitKey(0)
+    key = cv2.waitKey(40 * (not pause_playback)) & 0xFF  # wait 40ms (i.e. 1000ms / 25 fps = 40 ms)
+
+    if key == ord('x'):  # exit
+
+        break  # exit
+
+    elif key == ord('c'):  # crop
+
+        crop_disparity = not crop_disparity
+
+    elif key == ord(' '):  # pause (on next frame)
+
+        pause_playback = not pause_playback

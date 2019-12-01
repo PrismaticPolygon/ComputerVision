@@ -49,7 +49,7 @@ class YOLO:
 
     def draw_prediction(self, image, class_id, confidence, box, distance):
 
-        color = (0, 0, 0)
+        color = (255, 0, 0)
         left, top, width, height = box
 
         label = self.labels[class_id]
