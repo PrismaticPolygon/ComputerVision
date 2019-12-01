@@ -3,6 +3,11 @@ import numpy as np
 import time
 import os
 
+# https://docs.opencv.org/master/d3/d14/tutorial_ximgproc_disparity_filtering.html
+# http://timosam.com/python_opencv_depthimage
+
+# I just want to be sure that I'm not wasting my time.
+
 class Stereo:
 
     def __init__(self):
@@ -68,19 +73,49 @@ class Stereo:
         # https://stackoverflow.com/questions/26248654/how-to-return-0-with-divide-by-zero
         return np.divide(self.focal_length_px * self.baseline_m, disparity, out=np.zeros_like(disparity), where=disparity > 0)
 
-    def distance(self, left, right, crop_disparity=True):
-        # Convert both to grayscale, as this is what the algorithm uses. Could also downscale to improve speed at the cost of quality.
+    def preprocess(self, left, right):
 
-        grey_left = cv2.cvtColor(left, cv2.COLOR_BGR2GRAY)  # (544, 1024)
-        grey_right = cv2.cvtColor(right, cv2.COLOR_BGR2GRAY)  # (544, 1024)
+        images = (left, right)
+
+        # In many papers, a median filter is adopted to suppress noise.
+        # I imagine implementing my own in C would give the best results.
+        # I wonder if their code is available...
+
+        # For SSD / SAD, some form of band-pass filtering is typically used, such as a LoG.
+        # Only the high-pass component which
+
+        for image in images:
+
+            # Median filter.
+            # Wiener filter
+            # Histogram filter
+
+            # small Gaussian serves as a low pass filter and the differencing serves as a high pass filter.
+            # For images of good quality, the noise suppression provided by the low pass filter
+            # is generally unnecessary.
+            # image = cv2.medianBlur(image, 5)
+
+            image = cv2.cvtColor(left, cv2.COLOR_BGR2GRAY)
+
+            # https://docs.opencv.org/3.4/d5/d69/tutorial_py_non_local_means.html
+            image = cv2.fastNlMeansDenoising(image, h=10, templateWindowSize=7, searchWindowSize=21)
+
+            image = self.histogram_equaliser.apply(image)
+
+            cv2.imshow("Image", image)
+
+            pass
+
+        # grey_left = cv2.cvtColor(left, cv2.COLOR_BGR2GRAY)  # (544, 1024)
+        # grey_right = cv2.cvtColor(right, cv2.COLOR_BGR2GRAY)  # (544, 1024)
 
         # Perform pre-processing. Raise to the power, as this subjectively appears to improve disparity calculation.
 
         # cv2.imshow("Left", grey_left)
         # cv2.imshow("Right", grey_right)
 
-        grey_left = np.power(grey_left, 0.75).astype('uint8')
-        grey_right = np.power(grey_right, 0.75).astype('uint8')
+        # grey_left = np.power(grey_left, 0.75).astype('uint8')
+        # grey_right = np.power(grey_right, 0.75).astype('uint8')
 
         # Use histogram equalisation to improve contrast
 
@@ -92,8 +127,43 @@ class Stereo:
 
         # Use CLAHE to improve contrast
 
-        grey_left = self.histogram_equaliser.apply(grey_left)
-        grey_right = self.histogram_equaliser.apply(grey_right)
+        # grey_left = self.histogram_equaliser.apply(grey_left)
+        # grey_right = self.histogram_equaliser.apply(grey_right)
+
+
+        return images
+
+
+
+    def distance(self, left, right, crop_disparity=True):
+
+        grey_left, grey_right = self.preprocess(left, right)
+
+        # Convert both to grayscale, as this is what the algorithm uses. Could also downscale to improve speed at the cost of quality.
+        #
+        # grey_left = cv2.cvtColor(left, cv2.COLOR_BGR2GRAY)  # (544, 1024)
+        # grey_right = cv2.cvtColor(right, cv2.COLOR_BGR2GRAY)  # (544, 1024)
+        #
+        # # Perform pre-processing. Raise to the power, as this subjectively appears to improve disparity calculation.
+        #
+        # # cv2.imshow("Left", grey_left)
+        # # cv2.imshow("Right", grey_right)
+        #
+        # grey_left = np.power(grey_left, 0.75).astype('uint8')
+        # grey_right = np.power(grey_right, 0.75).astype('uint8')
+        #
+        # # Use histogram equalisation to improve contrast
+        #
+        # # grey_left = cv2.equalizeHist(grey_left)
+        # # grey_right = cv2.equalizeHist(grey_right)
+        # #
+        # # cv2.imshow("Left equalised", grey_left)
+        # # cv2.imshow("Right equalised", grey_right)
+        #
+        # # Use CLAHE to improve contrast
+        #
+        # grey_left = self.histogram_equaliser.apply(grey_left)
+        # grey_right = self.histogram_equaliser.apply(grey_right)
 
         # cv2.imshow("Left equalised CLAHE", grey_left)
         # cv2.imshow("Right equalised CLAHE", grey_right)

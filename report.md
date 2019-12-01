@@ -26,3 +26,5 @@ A tool was used to tune StereoBM, available [here](https://github.com/vmarquet/o
 for conciseness. 
 
 maxDisparity should be chosen based on your camera's setup.
+
+Pre-processing is typically performed to reduce photometric variations between the images.
