@@ -22,7 +22,7 @@ class WLS(Disparity):
             disp12MaxDiff=1,                # The maximum allowed difference (in integer pixel units) in the left-right disparity check. Set to non-positive to disable.
             preFilterCap=63,                # Truncation value for the prefiltered image pixels
             uniquenessRatio=15,             # Margin in percentage by which the best (minimum) computed cost function value should "win" the second best value to consider the found match correct. Normally, a value within the 5-15 range is good enough
-            speckleWindowSize=200,          # The maximum size of smooth disparity regions to consider noise speckles and invalidate. Set to 0. to disable speckling. Should be somewhere between 50 - 200.
+            speckleWindowSize=100,          # The maximum size of smooth disparity regions to consider noise speckles and invalidate. Set to 0. to disable speckling. Should be somewhere between 50 - 200.
             speckleRange=2,                 # maximum disparity variation within each connected component. If speckle filtering, set to positive. will be implicitly multiplied by 16. Normally, 1 or 2 is good enough.
             mode=cv2.STEREO_SGBM_MODE_HH    # Mode. Defaults to STEREO_SGBM_MODE_SGBM.
         )
@@ -34,8 +34,8 @@ class WLS(Disparity):
 
         self.wls_filter = cv2.ximgproc.createDisparityWLSFilter(matcher_left=self.left_matcher)
 
-        self.wls_filter.setLambda(8000)     # The amount of regularisation. Large values force filtered disparity map edges to adhere more to source image edges. Typically 8000.
-        self.wls_filter.setSigmaColor(1.6)  # How sensitive the filtering process is to source image edges. Large values can lead to disparity leakage through low-contrast edges. Small values can make the filter too sensitive to noise and textures in the source image. Typical values range fmro 0.8 to 2.0
+        self.wls_filter.setLambda(80000)     # The amount of regularisation. Large values force filtered disparity map edges to adhere more to source image edges. Typically 8000.
+        self.wls_filter.setSigmaColor(1.2)  # How sensitive the filtering process is to source image edges. Large values can lead to disparity leakage through low-contrast edges. Small values can make the filter too sensitive to noise and textures in the source image. Typical values range fmro 0.8 to 2.0
 
     def calculate(self, left, right):
 

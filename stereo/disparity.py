@@ -1,9 +1,5 @@
 import cv2
 import numpy as np
-import os
-# from stereo.wls import WLS
-# from stereo.sgbm import SGBM
-import time
 
 
 class Disparity:
@@ -17,7 +13,7 @@ class Disparity:
 
     def __init__(self):
 
-        self.offset_x = 135
+        self.offset_x = 155
         self.max_y = 396
 
         self.baseline_m = 0.2090607502              # in metres
@@ -73,37 +69,8 @@ class Disparity:
         # image = np.power(image, 0.75).astype('uint8')
 
         # https://docs.opencv.org/3.4/d5/d69/tutorial_py_non_local_means.html
-        image = cv2.fastNlMeansDenoising(image, h=10, templateWindowSize=7, searchWindowSize=21)
+        # image = cv2.fastNlMeansDenoising(image, h=10, templateWindowSize=7, searchWindowSize=21)
 
         image = self.histogram_equaliser.apply(image)
 
         return image
-
-
-# if __name__ == "__main__":
-#
-#     processors = [SGBM(), WLS()]
-#
-#     left_path = os.path.join("images", "left", "1506942473.484027_L.png")
-#     right_path = os.path.join("images", "right", "1506942473.484027_R.png")
-#
-#     left = cv2.imread(left_path, cv2.IMREAD_COLOR)
-#     right = cv2.imread(right_path, cv2.IMREAD_COLOR)
-#
-#     cv2.imshow("Left", left)
-#     cv2.imshow("Right", right)
-#
-#     for processor in processors:
-#
-#         start = time.time()
-#
-#         disparity = processor.calculate(left, right)
-#
-#         print("{} took {:.2f} seconds".format(processor.__name__, time.time() - start))
-#
-#         cv2.imshow('{} disparity'.format(processor.__name__), Disparity.to_image(disparity))
-#
-#         cv2.waitKey(0)
-
-
-

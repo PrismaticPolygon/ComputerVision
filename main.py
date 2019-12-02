@@ -4,7 +4,9 @@ from yolo import YOLO
 from stereo.wls import WLS
 import numpy as np
 
-# TODO: add checks for missing images as per original script
+# TODO: investigate "statistics" and "heuristics" to produce an accurate object range.
+# TODO: investigate "frame-to-frame temporal constraints"
+# TODO: process / project only the region in front of the car
 # TODO: test on more images
 # TODO: further investigate pre- and post- filtering algorithms.
 
@@ -61,11 +63,6 @@ for left_file, right_file, left_file_path, right_file_path in images():
 
         distance = wls.get_box_distance(disparity_map, box)
 
-        print(distance)
-
-        # Where does -1.2
-        # distance = stereo.get_box_distance(distance_map, x, y, width, height)
-
         if distance < smallest_distance:
 
             smallest_distance = distance    # There we go.
@@ -78,7 +75,8 @@ for left_file, right_file, left_file_path, right_file_path in images():
 
     print(right_file + " : nearest detected scene object ({:.2f}m)".format(smallest_distance))
 
-    cv2.imshow("Result", wls.to_image(disparity_map))
+    cv2.imshow("Disparity", wls.to_image(disparity_map))
+    cv2.imshow("Result", left)
 
     out_image_path = os.path.join("output", "images", left_file)
     out_disparity_path = os.path.join("output", "disparities", left_file)
@@ -91,10 +89,6 @@ for left_file, right_file, left_file_path, right_file_path in images():
     if key == ord('x'):  # exit
 
         break  # exit
-
-    elif key == ord('c'):  # crop
-
-        crop_disparity = not crop_disparity
 
     elif key == ord(' '):  # pause (on next frame)
 
