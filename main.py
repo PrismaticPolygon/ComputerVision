@@ -1,12 +1,10 @@
 import os
 import cv2
-from my_yolo import YOLO
-from my_stereo_disparity import Stereo
-from wls_disparity import WLS
+from yolo import YOLO
+from stereo.wls import WLS
 import numpy as np
 
 # TODO: add checks for missing images as per original script
-# TODO: tidy up WLS and stereo, standardise interface (inheritance?)
 # TODO: test on more images
 # TODO: further investigate pre- and post- filtering algorithms.
 
@@ -36,7 +34,6 @@ def images(start=""):
 
 
 yolo = YOLO()
-# stereo = Stereo()
 wls = WLS()
 
 crop_disparity = True
@@ -59,19 +56,19 @@ for left_file, right_file, left_file_path, right_file_path in images():
 
     for i, box in enumerate(boxes):
 
-        x, y, width, height = box
-
         class_id = class_IDs[i]
         confidence = confidences[i]
 
-        distance = wls.get_box_distance(disparity_map, x, y, width, height)
+        distance = wls.get_box_distance(disparity_map, box)
 
+        print(distance)
 
+        # Where does -1.2
         # distance = stereo.get_box_distance(distance_map, x, y, width, height)
 
         if distance < smallest_distance:
 
-            smallest_distance = distance
+            smallest_distance = distance    # There we go.
 
         yolo.draw_prediction(left, class_id, confidence, box, distance)
 
@@ -81,13 +78,12 @@ for left_file, right_file, left_file_path, right_file_path in images():
 
     print(right_file + " : nearest detected scene object ({:.2f}m)".format(smallest_distance))
 
-    cv2.imshow("Result", left)
+    cv2.imshow("Result", wls.to_image(disparity_map))
 
-    out_image_path = os.path.join("annotated", left_file[:-6] + "_i.png")
-    out_disparity_path = os.path.join("annotated", left_file[:-6] + "_disparity.png")
+    out_image_path = os.path.join("output", "images", left_file)
+    out_disparity_path = os.path.join("output", "disparities", left_file)
 
     cv2.imwrite(out_disparity_path, wls.to_image(disparity_map))
-
     cv2.imwrite(out_image_path, left)
 
     key = cv2.waitKey(40 * (not pause_playback)) & 0xFF  # wait 40ms (i.e. 1000ms / 25 fps = 40 ms)

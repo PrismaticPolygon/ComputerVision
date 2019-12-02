@@ -28,3 +28,6 @@ for conciseness.
 maxDisparity should be chosen based on your camera's setup.
 
 Pre-processing is typically performed to reduce photometric variations between the images.
+
+Weighted Least Squares (WLS) was chosen as the alternative dense stereo ranging method.
+It was found to be far superior to the basic SGBM method.

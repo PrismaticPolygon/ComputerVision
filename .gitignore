@@ -3,3 +3,5 @@ images
 yolov3.weights
 annotated
 *.avi
+output/disparities
+output/images
