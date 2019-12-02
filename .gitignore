@@ -1,3 +1,5 @@
 .idea
 images
 yolov3.weights
+annotated
+*.avi

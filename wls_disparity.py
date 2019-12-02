@@ -11,15 +11,12 @@ image_centre_w = 474.5              # rectified image centre width, in pixels
 
 # depth (metres) = baseline (metres) * focal_length (pixels) / disparity (pixels)
 
-# https://github.com/vmarquet/opencv-disparity-map-tuner. Only works on Linux / Mac.
-
-# max_disp has to be divisable by 16.
 
 class WLS:
 
     def __init__(self):
 
-        print("Initialising WLS...", end="")
+        # print("Initialising WLS...", end="")
 
         start = time.time()
 
@@ -34,7 +31,7 @@ class WLS:
 
         # Processor variables
 
-        self.window_size = 5
+        self.window_size = 3
         self.min_disparity = 0  # Minimum possible disparity value. Defaults to 0.
         self.num_disparities = 160  # Maximum disparity - minimum disparity. Defaults to 16.
         self.block_size = 5  # Matched blocked size. Must be an odd number >= 1. Normally between 3 and 11. Defaults to 3.
@@ -89,32 +86,31 @@ class WLS:
         self.wls_filter.setLambda(self.lmbda)
         self.wls_filter.setSigmaColor(self.sigma)
 
-        print("DONE ({:.2f}s)".format(time.time() - start))
+        # print(" DONE ({:.2f}s)".format(time.time() - start))
 
-    def preprocess(self, left, right):
+    def preprocess(self, image):
 
-        for image in (left, right):
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-            # Convert to greyscale
+        image = self.histogram_equaliser.apply(image)
 
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-            image = self.histogram_equaliser.apply(image)
-
-        return left, right
+        return image
 
     def calculate(self, left, right, crop_disparity=True):
 
-        left, right = self.preprocess(left, right)
+        left = self.preprocess(left)
+        right = self.preprocess(right)
 
-        disparity_left = self.left_matcher.compute(left, right).astype(np.float32)/16
-        disparity_right = self.right_matcher.compute(right, left).astype(np.float32)/16
+        disparity_left = self.left_matcher.compute(left, right).astype(np.float32) / 16.
+        disparity_right = self.right_matcher.compute(right, left).astype(np.float32) / 16.
 
         disparity = self.wls_filter.filter(disparity_left, left, None, disparity_right)
 
-        if crop_disparity:
+        # This is actually easier lmao.
 
-            disparity = disparity[0:396, 135:1024]
+        # if crop_disparity:
+        #
+        #     disparity = disparity[0:396, 165:1024]
 
         return disparity
 
@@ -123,6 +119,45 @@ class WLS:
         image = cv2.normalize(src=disparity, dst=disparity, beta=0, alpha=255, norm_type=cv2.NORM_MINMAX)
 
         return np.uint8(image)
+
+    def get_box_distance(self, disparity, x, y, box_width, box_height):
+
+        # Lol. How did I end up with that ridiculous value?
+
+        if x < 135:
+
+            box_width = box_width + (x - 135)
+            x = 135
+
+
+        # min_x = 135
+        # max_y = 396
+        #
+        # x = x - min_x
+        #
+        # if x < 0:               # If we're in the left region with no disparity
+        #
+        #     box_width = box_width - (min_x - x)
+        #     x = 0
+        #
+        # if y + box_height > max_y:  # If we're in the bottom region with no disparity
+        #
+        #     box_height = max_y - y
+
+        disparity_box = disparity[y: y + box_height, x: x + box_width]
+
+        disparity_median = np.nanmedian(disparity_box)
+
+        if disparity_median != 0:
+
+            distance = (self.focal_length_px / self.baseline_m) / disparity_median
+            distance = distance / 100
+
+            return distance
+
+        else:
+
+            return 0
 
 
 if __name__ == "__main__":
@@ -141,65 +176,3 @@ if __name__ == "__main__":
     cv2.imshow('Disparity Map', wls.to_image(disparity))
 
     cv2.waitKey(0)
-
-    # window_size = 3  # wsize default 3; 5; 7 for SGBM reduced size image; 15 for SGBM full size image (1300px and above); 5 Works nicely
-    #
-    # left_matcher = cv2.StereoSGBM_create(
-    #     minDisparity=0,
-    #     numDisparities=160,  # max_disp has to be dividable by 16 f. E. HH 192, 256
-    #     blockSize=5,
-    #     P1=8 * 3 * window_size ** 2,
-    #     P2=32 * 3 * window_size ** 2,
-    #     disp12MaxDiff=1,
-    #     uniquenessRatio=15,
-    #     speckleWindowSize=0,
-    #     speckleRange=2,
-    #     preFilterCap=63,
-    #     mode=cv2.STEREO_SGBM_MODE_SGBM_3WAY
-    # )
-    #
-    # right_matcher = cv2.ximgproc.createRightMatcher(left_matcher)
-    #
-    # lmbda = 80000
-    # sigma = 1.2
-    # visual_multiplier = 1.0
-    #
-    # wls_filter = cv2.ximgproc.createDisparityWLSFilter(matcher_left=left_matcher)
-    # wls_filter.setLambda(lmbda)
-    # wls_filter.setSigmaColor(sigma)
-    #
-    # print('computing disparity...')
-    # displ = left_matcher.compute(imgL, imgR)  # .astype(np.float32)/16
-    # dispr = right_matcher.compute(imgR, imgL)  # .astype(np.float32)/16
-    # displ = np.int16(displ)
-    # dispr = np.int16(dispr)
-    # filteredImg = wls_filter.filter(displ, imgL, None, dispr)  # important to put "imgL" here!!!
-    #
-    # # cv2.imshow("Disparity", filteredImg)
-    # #
-    # # cv2.waitKey(0)
-    #
-    # # /filteredImg, out=np.zeros_like(filteredImg),
-    #
-    # filteredImg = cv2.normalize(src=filteredImg, dst=filteredImg, beta=0, alpha=255, norm_type=cv2.NORM_MINMAX)
-    # filteredImg = np.uint8(filteredImg)
-    # cv2.imshow('Disparity Map', filteredImg)
-    #
-    # # cv2.imwrite("Disparity map WLS.png", filteredImg)
-    #
-    # cv2.waitKey()
-    # cv2.destroyAllWindows()
-
-
-    # disparity = calculate(left, right)
-    #
-    # filtered_img = cv2.normalize(disparity, disparity, beta=0, alpha=255, norm_type=cv2.NORM_MINMAX)
-    #
-    # print(filtered_img)
-    #
-    # # It's all just... white.
-    # # But it works!
-    #
-    # cv2.imshow("Distance", filtered_img)
-    #
-    # cv2.waitKey(0)

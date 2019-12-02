@@ -11,6 +11,10 @@ before calculating disparity. And that's for low-light as well; it might not be 
 
 Should I be projecting onto a point cloud?
 
+
+
+# https://github.com/vmarquet/opencv-disparity-map-tuner. Only works on Linux / Mac.
+
 Median filter for denoising, Wiener filter for deblurring,
 and contrast enhancement by Histogram Equalisation. 
 Many algorithms give integer disparity values. This can result in 

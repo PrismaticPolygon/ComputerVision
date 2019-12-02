@@ -3,19 +3,20 @@ import os
 import time
 import numpy as np
 
+
 class YOLO:
 
     def __init__(self):
 
-        start = time.time()
+        # start = time.time()
 
-        print("Initialising YOLO...", end="")
+        # print("Initialising YOLO...", end="")
 
         coco_names_path = os.path.join("yolo-coco", "coco.names")
         coco_config_path = os.path.join("yolo-coco", "yolov3.cfg")
         coco_weights_path = os.path.join("yolo-coco", "yolov3.weights")
 
-        self.confidence_T = 0.5  # Confidence threshold
+        self.confidence_T = 0.8  # Confidence threshold
         self.nms_T = 0.4  # Non-maxima suppression threshold
 
         self.input_height = 544  # Height of the network's input image
@@ -39,7 +40,7 @@ class YOLO:
 
         self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_OPENCL)
 
-        print(" DONE ({:.2f}s)".format(time.time() - start))  # 6.35 seconds. Very not good.
+        # print(" DONE ({:.2f}s)".format(time.time() - start))  # 6.35 seconds. Very not good.
 
     def get_output_names(self):
 
@@ -49,7 +50,7 @@ class YOLO:
 
     def draw_prediction(self, image, class_id, confidence, box, distance):
 
-        color = (255, 0, 0)
+        color = (0, 0, 255)
         left, top, width, height = box
 
         label = self.labels[class_id]
@@ -78,7 +79,7 @@ class YOLO:
 
         class_IDs, confidences, boxes = self.postprocess(frame, results)
 
-        print("YOLO took {:.2f} seconds".format(time.time() - start))  # 6.35 seconds. Very not good.
+        # print("YOLO took {:.2f} seconds".format(time.time() - start))  # 6.35 seconds. Very not good.
 
         return class_IDs, confidences, boxes
 
