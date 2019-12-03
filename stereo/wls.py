@@ -50,6 +50,4 @@ class WLS(Disparity):
 
         disparity = self.wls_filter.filter(disparity_left, left, None, disparity_right)
 
-        disparity[disparity > 750] = 0
-
         return disparity

@@ -24,6 +24,11 @@ import cv2
 import os
 import numpy as np
 
+COCO_NAMES_PATH = os.path.join("yolo-coco", "coco.names")
+COCO_CONFIG_PATH = os.path.join("yolo-coco", "yolov3.cfg")
+COCO_WEIGHTS_PATH = os.path.join("yolo-coco", "yolov3.weights")
+
+
 
 class YOLO:
     """
@@ -32,25 +37,17 @@ class YOLO:
 
     def __init__(self):
 
-        # start = time.time()
-
-        # print("Initialising YOLO...", end="")
-
-        coco_names_path = os.path.join("yolo-coco", "coco.names")
-        coco_config_path = os.path.join("yolo-coco", "yolov3.cfg")
-        coco_weights_path = os.path.join("yolo-coco", "yolov3.weights")
-
-        self.confidence_T = 0.8  # Confidence threshold
+        self.confidence_T = 0.55  # Confidence threshold
         self.nms_T = 0.4  # Non-maxima suppression threshold
 
-        self.input_height = 544  # Height of the network's input image
-        self.input_width = 1024  # Width of the network's input image
+        self.input_height = 416  # Height of the network's input image
+        self.input_width = 416  # Width of the network's input image
 
-        with open(coco_names_path) as coco_names:
+        with open(COCO_NAMES_PATH) as coco_names:
 
             self.labels = coco_names.read().rstrip('\n').split('\n')
 
-        self.net = cv2.dnn.readNetFromDarknet(coco_config_path, coco_weights_path)
+        self.net = cv2.dnn.readNetFromDarknet(COCO_CONFIG_PATH, COCO_WEIGHTS_PATH)
 
         self.layer_names = self.net.getLayerNames()
 
@@ -78,16 +75,20 @@ class YOLO:
         the camera, and the certainty of the prediction.
         """
 
+        # If the WHOLe box is in that range.
+
         color = (0, 0, 255)
         left, top, width, height = box
 
         label = self.labels[class_id]
 
-        cv2.rectangle(image, (left, top), (left + width, top + height), color, 3)
+        if label != "train":    # Curious number of false positives of trains
 
-        label = '{} - {:.2f}m ({:.2f}%)'.format(label, distance, confidence * 100)  # construct label
+            cv2.rectangle(image, (left, top), (left + width, top + height), color, 3)
 
-        cv2.putText(image, label, (left, top - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            label = '{} - {:.1f}m ({:.0f}%)'.format(label, distance, confidence * 100)  # construct label
+
+            cv2.putText(image, label, (left, top - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
     def predict(self, frame: np.ndarray):
         """
@@ -96,7 +97,7 @@ class YOLO:
 
         # Create a 4D tensor (OpenCV "blob") from the image frame (with pixels scaled  0 -> and the image resized)
 
-        blob = cv2.dnn.blobFromImage(frame, 1 / 255.0, (self.input_width, self.input_height), [0, 0, 0], 1, crop=False)
+        blob = cv2.dnn.blobFromImage(frame, 1 / 255, (self.input_width, self.input_height), [0, 0, 0], 1, crop=False)
 
         # Set the input to the CNN
 
@@ -135,15 +136,16 @@ class YOLO:
 
                 if confidence > self.confidence_T:
 
-                    # YOLO returns the center of the bounding box followed by height and width.
-                    centerX, centerY, width, height = (detection[0:4] * np.array([W, H, W, H])).astype("int")  # Scale bounding box so that we can display them properly
+                    center_x = int(detection[0] * W)
+                    center_y = int(detection[1] * H)
+                    width = int(detection[2] * W)
+                    height = int(detection[3] * H)
+                    left = int(center_x - width / 2)
+                    top = int(center_y - height / 2)
 
-                    top_left_x = int(centerX - (width / 2))  # Derive the top-left x
-                    top_left_y = int(centerY - (width / 2))  # Derive the top-left y
-
-                    boxes.append([top_left_x, top_left_y, int(width), int(height)])
-                    confidences.append(float(confidence))
                     class_IDs.append(class_ID)
+                    confidences.append(float(confidence))
+                    boxes.append([left, top, width, height])
 
         class_IDs_nms = []
         confidences_nms = []

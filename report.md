@@ -128,17 +128,13 @@ maxDisparity should be chosen based on your camera's setup.
 
 Pre-processing is typically performed to reduce photometric variations between the images.
 
-Bilateral filtering was applied to improve the performance of YOLO.
-
-It can be assumed that YOLO was trained on a high-quality, high-resolution dataset, with well-defined and accurately 
-labelled bounding boxes, a luxury not found in TTBB. Applying the bilateral filter to enhance edges and smooth noise
+Applying the bilateral filter to enhance edges and smooth noise
 should improve results.
 
-[Literature review](https://www.hindawi.com/journals/js/2016/8742920/)
-
-We should work this in somewhere.
 
 It is difficult to state accurate how quantitatively accurate the developed system is without a ground truth.
+Several points of reference were established using Google Maps to estimate the expected distance between a detected object
+and the camera itself. These reference frames were evaluated after parameter modification.
 
 ### Sources
 

@@ -53,7 +53,7 @@ class Disparity:
                 tileGridSize=tile_grid_size    # Input image will be divided into equally sized rectangular tiles
             )
 
-    def get_box_distance(self, disparity: np.ndarray, box: tuple[int, int, int, int]) -> float:
+    def get_box_distance(self, disparity: np.ndarray, box: tuple) -> float:
         """
         Given the disparity map of an image, and a bounding box in that image, get the distance of the object contained
         within that box. Make adjustments for blank areas of disparity and bad boxes.
@@ -70,17 +70,13 @@ class Disparity:
 
             height = self.max_y - y
 
-        # YOLO frequently identifies objects either above or below the actual object; this reduces this source of error.
-        start_y = int((y + height) / 3)
-        end_y = int(2 * (y + height) / 3)
+        disparity_box = disparity[y: y + height, x: x + width]
+        disparity_box_average = np.average(disparity_box)
 
-        disparity_box = disparity[start_y: end_y, x: x + width]
-        disparity_box_median = np.nanmedian(disparity_box)
-
-        if disparity_box_median != 0:
+        if disparity_box_average != 0:
 
             # depth (metres) = baseline (metres) * focal_length (pixels) / disparity (pixels)
-            return self.focal_length_px * self.baseline_m / disparity_box_median
+            return self.focal_length_px * self.baseline_m / disparity_box_average
 
         else:
 
@@ -96,7 +92,7 @@ class Disparity:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#bilateralfilter
-        image = cv2.bilateralFilter(image, 5, 10, 10)
+        image = cv2.bilateralFilter(image, 5, 25, 25)
 
         if self.histogram == "CLAHE":
 
@@ -105,9 +101,5 @@ class Disparity:
         else:
 
             image = cv2.equalizeHist(image)
-
-        # Appears to subjectively improve disparity calculation
-
-        image = np.power(image, 0.75).astype(np.float32)
 
         return image

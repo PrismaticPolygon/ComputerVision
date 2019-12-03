@@ -5,13 +5,6 @@ import numpy as np
 from yolo import YOLO
 from stereo.wls import WLS
 
-# TODO: investigate "statistics" and "heuristics" to produce an accurate object range.
-# TODO: investigate "frame-to-frame temporal constraints"
-# TODO: process / project only the region in front of the car
-# TODO: further investigate pre- and post- filtering algorithms.
-# TODO: investigate HSL histogram equalisation (https://github.com/YuAo/Accelerated-CLAHE)
-# TODO: finish report.
-
 MASTER_PATH_TO_DATASET = "TTBB-durham-02-10-17-sub10"
 LEFT_DIR = "left-images"
 RIGHT_DIR = "right-images"
@@ -68,7 +61,7 @@ if SAVE_IMAGES:
     os.mkdir(disparities_output_path)
 
 
-for left_file, right_file, left_file_path, right_file_path in images():
+for left_file, right_file, left_file_path, right_file_path in images(start="1506943035.478214_L.png"):
 
     print("")
     print(left_file)
@@ -77,22 +70,29 @@ for left_file, right_file, left_file_path, right_file_path in images():
     right = cv2.imread(right_file_path, cv2.IMREAD_COLOR)
 
     disparity_map = wls.calculate(left, right)
-    class_IDs, confidences, boxes = yolo.predict(left)
+
+    left_filtered = cv2.bilateralFilter(left, 5, 25, 25)
+
+    class_IDs, confidences, boxes = yolo.predict(left_filtered[0:390, :])
 
     smallest_distance = np.inf
 
     for i, box in enumerate(boxes):
 
-        class_id = class_IDs[i]
-        confidence = confidences[i]
+        x, y, width, height = box
 
-        distance = wls.get_box_distance(disparity_map, box)
+        if x + width > 135:  # No disparity information in this range.
 
-        if distance < smallest_distance:
+            confidence = confidences[i]
+            class_id = class_IDs[i]
 
-            smallest_distance = distance
+            distance = wls.get_box_distance(disparity_map, box)
 
-        yolo.draw_prediction(left, class_id, confidence, box, distance)
+            if distance < smallest_distance:
+
+                smallest_distance = distance
+
+            yolo.draw_prediction(left, class_id, confidence, box, distance)
 
     if smallest_distance == np.inf:
 
