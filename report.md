@@ -128,10 +128,21 @@ maxDisparity should be chosen based on your camera's setup.
 
 Pre-processing is typically performed to reduce photometric variations between the images.
 
+Bilateral filtering was applied to improve the performance of YOLO.
+
+It can be assumed that YOLO was trained on a high-quality, high-resolution dataset, with well-defined and accurately 
+labelled bounding boxes, a luxury not found in TTBB. Applying the bilateral filter to enhance edges and smooth noise
+should improve results.
 
 [Literature review](https://www.hindawi.com/journals/js/2016/8742920/)
 
 We should work this in somewhere.
+
+### Sources
+
+* [Literature review](https://www.hindawi.com/journals/js/2016/8742920/)
+* [Slides](http://vision.deis.unibo.it/~smatt/Seminars/StereoVision.pdf)
+* [More stuff](https://www.intechopen.com/online-first/efficient-depth-estimation-using-sparse-stereo-vision-with-other-perception-techniques)
 
 
 Weighted Least Squares (WLS) was chosen as the alternative dense stereo ranging method.

@@ -1,10 +1,34 @@
+################################################################################
+
+# This script is based off work by Toby Breckon, toby.breckon@durham.ac.uk,
+# available at:
+#
+#       https://github.com/tobybreckon/python-examples-cv/blob/master/yolo.py
+#
+# under the LGPL licence. It implements the You Only Look Once (YOLO)
+# object detection algorithm described in:
+#
+# Redmon, J., & Farhadi, A. (2018). Yolov3: An incremental improvement. arXiv preprint arXiv:1804.02767.
+#
+# and available at https://pjreddie.com/media/files/papers/YOLOv3.pdf
+#
+# The script expects to find the following files in a directory named "yolo-coco":
+#
+# https://pjreddie.com/media/files/yolov3.weights
+# https://github.com/pjreddie/darknet/blob/master/cfg/yolov3.cfg?raw=true
+# https://github.com/pjreddie/darknet/blob/master/data/coco.names?raw=true
+
+################################################################################
+
 import cv2
 import os
-import time
 import numpy as np
 
 
 class YOLO:
+    """
+    Class that encapsulates You Only Look Once (YOLO), a state-of-the-art object detection technique.
+    """
 
     def __init__(self):
 
@@ -48,7 +72,11 @@ class YOLO:
 
         return [layer_names[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
 
-    def draw_prediction(self, image, class_id, confidence, box, distance):
+    def draw_prediction(self, image: np.ndarray, class_id: int, confidence: float, box: tuple, distance: float) -> None:
+        """
+        Draw a prediction on an image, as as a bounding box labelled with the class of object, its distance from
+        the camera, and the certainty of the prediction.
+        """
 
         color = (0, 0, 255)
         left, top, width, height = box
@@ -61,9 +89,10 @@ class YOLO:
 
         cv2.putText(image, label, (left, top - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-    def predict(self, frame):
-
-        start = time.time()
+    def predict(self, frame: np.ndarray):
+        """
+        Given an image, generate predictions for it using YOLO.
+        """
 
         # Create a 4D tensor (OpenCV "blob") from the image frame (with pixels scaled  0 -> and the image resized)
 
@@ -79,15 +108,14 @@ class YOLO:
 
         class_IDs, confidences, boxes = self.postprocess(frame, results)
 
-        # print("YOLO took {:.2f} seconds".format(time.time() - start))  # 6.35 seconds. Very not good.
-
         return class_IDs, confidences, boxes
 
-    def postprocess(self, frame, results):
-
-        # Scan through all the bounding boxes output from the network.
-        # Remove those with lose confidence. Assign a box class label as the class with the highest score
-        # Construct a list of bounding boxes, class labels, and confidence scores.
+    def postprocess(self, frame: np.ndarray, results):
+        """
+        Scan through all the bounding boxes output from the network.
+        Remove those with lose confidence. Assign a box class label as the class with the highest score
+        Construct a list of bounding boxes, class labels, and confidence scores.
+        """
 
         H, W, _ = frame.shape
 
@@ -123,7 +151,7 @@ class YOLO:
 
         indices = cv2.dnn.NMSBoxes(boxes, confidences, self.confidence_T, self.nms_T)
 
-        # Perform non-maxima suppression to eliminate redundant overlapping boxes with lower confidence.
+        # Perform non-maximum suppression to eliminate redundant overlapping boxes with lower confidence.
         for i in indices:
 
             i = i[0]

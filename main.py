@@ -9,10 +9,8 @@ from stereo.wls import WLS
 # TODO: investigate "frame-to-frame temporal constraints"
 # TODO: process / project only the region in front of the car
 # TODO: further investigate pre- and post- filtering algorithms.
-# TODO: comment code
 # TODO: investigate HSL histogram equalisation (https://github.com/YuAo/Accelerated-CLAHE)
 # TODO: finish report.
-# TODO: add copyright
 
 MASTER_PATH_TO_DATASET = "TTBB-durham-02-10-17-sub10"
 LEFT_DIR = "left-images"
@@ -20,6 +18,9 @@ RIGHT_DIR = "right-images"
 
 
 def images(start=""):
+    """
+    A generator yielding file names and paths for both left and right images
+    """
 
     left_path, right_path = os.path.join(MASTER_PATH_TO_DATASET, LEFT_DIR), os.path.join(MASTER_PATH_TO_DATASET, RIGHT_DIR)
 
@@ -53,13 +54,10 @@ if SAVE_IMAGES:
 
     os.mkdir("output")
 
-    # I am also getting far too many NANs.
-
     os.mkdir(os.path.join("output", "disparities"))
     os.mkdir(os.path.join("output", "images"))
     os.mkdir(os.path.join("output", "videos"))
 
-# It still looks very different to my first one.
 
 for left_file, right_file, left_file_path, right_file_path in images():
 

@@ -45,16 +45,11 @@ class WLS(Disparity):
         left = self.preprocess(left)
         right = self.preprocess(right)
 
-        print(left.shape)
-        print(right.shape)
-
         disparity_left = self.left_matcher.compute(left, right) / 16.
         disparity_right = self.right_matcher.compute(right, left) / 16.
 
         disparity = self.wls_filter.filter(disparity_left, left, None, disparity_right)
 
         disparity[disparity > 750] = 0
-
-        print(disparity.shape)
 
         return disparity

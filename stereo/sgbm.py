@@ -1,10 +1,11 @@
 import cv2
+import numpy as np
 from stereo.disparity import Disparity
 
 
 class SGBM(Disparity):
     """
-    Class encapsulating the Semi-Global Block Matching stereo filter
+    Class encapsulating the Semi-Global Block Matching stereo filter.
     """
 
     def __init__(self):
@@ -29,15 +30,13 @@ class SGBM(Disparity):
             mode=cv2.STEREO_SGBM_MODE_HH  # Mode. Defaults to STEREO_SGBM_MODE_SGBM.
         )
 
-    def calculate(self, left, right):
+    def calculate(self, left: np.ndarray, right: np.ndarray) -> np.ndarray:
 
         left = self.preprocess(left)
         right = self.preprocess(right)
 
-        return self.sgbm_filter.compute(left, right) / 16.
+        disparity = self.sgbm_filter.compute(left, right) / 16.
 
-        # disparity = (disparity - min_disp) / num_disp. What is the purpose of this?
+        disparity[disparity > 750] = 0
 
-        # That's my disparity map, right?
-        # Not distance. So why does it look different to the previous one that I calculated?
-        # Cause we had some strange noise on my laptop.
+        return disparity

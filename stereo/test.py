@@ -1,24 +1,24 @@
 import cv2
 import time
+import os
+import numpy as np
+
 from stereo.sgbm import SGBM
 from stereo.wls import WLS
 from stereo.disparity import Disparity
-import os
-import numpy as np
+
+# Helper script for generating report images
+
+left_path = os.path.join("..", "TTBB-durham-02-10-17-sub10", "left-images", "1506943569.478977_L.png")  # Colour
+right_path = os.path.join("..", "TTBB-durham-02-10-17-sub10", "right-images", "1506943569.478977_R.png")  # Greyscale
+
+left = cv2.imread(left_path, cv2.IMREAD_COLOR)
+right = cv2.imread(right_path, cv2.IMREAD_COLOR)
 
 
 def processor_comparison():
 
     processors = [SGBM(), WLS()]
-
-    left_path = "/home/dom/PycharmProjects/ComputerVision/images/left/1506942473.484027_L.png"
-    right_path = "/home/dom/PycharmProjects/ComputerVision/images/right/1506942473.484027_R.png"
-
-    # left_path = os.path.join("images", "left", "1506942473.484027_L.png")
-    # right_path = os.path.join("images", "right", "1506942473.484027_R.png")
-
-    left = cv2.imread(left_path, cv2.IMREAD_COLOR)
-    right = cv2.imread(right_path, cv2.IMREAD_COLOR)
 
     cv2.imshow("Left", left)
     cv2.imshow("Right", right)
@@ -38,12 +38,6 @@ def processor_comparison():
 
 def histogram_comparison():
 
-    left_path = os.path.join("..", "TTBB-durham-02-10-17-sub10", "left-images", "1506943569.478977_L.png")     # Colour
-    right_path = os.path.join("..", "TTBB-durham-02-10-17-sub10", "right-images", "1506943569.478977_R.png")   # Greyscale
-
-    left = cv2.imread(left_path, cv2.IMREAD_COLOR)
-    right = cv2.imread(right_path, cv2.IMREAD_COLOR)
-
     clahe = Disparity(histogram="CLAHE")
     default = Disparity()
 
@@ -59,13 +53,6 @@ def histogram_comparison():
 
 
 def tile_grid_optimisation():
-
-    left_path = os.path.join("..", "TTBB-durham-02-10-17-sub10", "left-images", "1506943569.478977_L.png")     # Colour
-    right_path = os.path.join("..", "TTBB-durham-02-10-17-sub10", "right-images", "1506943569.478977_R.png")   # Greyscale
-
-    left = cv2.imread(left_path, cv2.IMREAD_COLOR)
-
-    # Let's make two concurrently, then join them.
 
     tile_grid_image = None
 
@@ -93,11 +80,6 @@ def tile_grid_optimisation():
 
 def clip_limit_optimisation():
 
-    left_path = os.path.join("..", "TTBB-durham-02-10-17-sub10", "left-images", "1506943569.478977_L.png")     # Colour
-    right_path = os.path.join("..", "TTBB-durham-02-10-17-sub10", "right-images", "1506943569.478977_R.png")   # Greyscale
-
-    left = cv2.imread(left_path, cv2.IMREAD_COLOR)
-
     clip_limit_image = None
 
     for i in range(0, 6):
@@ -120,5 +102,6 @@ def clip_limit_optimisation():
     cv2.imwrite("../output/tests/clip_limit_image.png", clip_limit_image)
 
     cv2.waitKey(0)
+
 
 histogram_comparison()
