@@ -48,15 +48,24 @@ SAVE_IMAGES = True
 
 if SAVE_IMAGES:
 
-    if os.path.exists("output"):
+    image_output_path = os.path.join("output", "images")
+    disparities_output_path = os.path.join("output", "disparities")
 
-        shutil.rmtree("output")
+    if not os.path.exists("output"):
 
-    os.mkdir("output")
+        os.mkdir("output")
 
-    os.mkdir(os.path.join("output", "disparities"))
-    os.mkdir(os.path.join("output", "images"))
-    os.mkdir(os.path.join("output", "videos"))
+    if os.path.exists(image_output_path):
+
+        shutil.rmtree(image_output_path)
+
+    os.mkdir(image_output_path)
+
+    if os.path.exists(disparities_output_path):
+
+        shutil.rmtree(disparities_output_path)
+
+    os.mkdir(disparities_output_path)
 
 
 for left_file, right_file, left_file_path, right_file_path in images():
