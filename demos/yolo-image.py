@@ -6,11 +6,11 @@ import os
 
 #https://www.pyimagesearch.com/2018/11/12/yolo-object-detection-with-opencv/
 
-image_path = "images/left/1506943009.480358_L.png"
+image_path = "TTBB-durham-02-10-17-sub10/left-images/1506943009.480358_L.png"
 weights_path = "yolo-coco/yolov3.weights"
 config_path = "yolo-coco/yolov3.cfg"
 
-# Ultimately, we'll want to have a single method, right?
+# Ultimately, we'll want to have a single method, right-images?
 # We pass in an image and them it does all of the rest.
 
 labels = labels()
@@ -58,8 +58,8 @@ for output in layerOutputs:
             # But then again... if we have the box, we don't have to perform it for the whole image.
             # So that's an improvement.
 
-            x = int(centerX - (width / 2))  # Derive the top-left x
-            y = int(centerY - (width / 2))  # Derive the top-left y
+            x = int(centerX - (width / 2))  # Derive the top-left-images x
+            y = int(centerY - (width / 2))  # Derive the top-left-images y
 
             boxes.append([x, y, int(width), int(height)])
             confidences.append(float(confidence))

@@ -22,7 +22,7 @@ class SGBM(Disparity):
             blockSize=5,                    # Matched blocked size. Must be an odd number >= 1. Normally between 3 and 11. Defaults to 3.
             P1=8 * 1 * window_size ** 2,    # First parameter controlling disparity smoothness. The penalty on the disparity change by +- 1 between pixels.
             P2=32 * 1 * window_size ** 2,   # Second parameter controlling disparity smoothness. The larger the values, the smoother the disparity. Must be greater than P1
-            disp12MaxDiff=1,                # The maximum allowed difference (in integer pixel units) in the left-right disparity check. Set to non-positive to disable.
+            disp12MaxDiff=1,                # The maximum allowed difference (in integer pixel units) in the left-images-right-images disparity check. Set to non-positive to disable.
             preFilterCap=63,                # Truncation value for the prefiltered image pixels
             uniquenessRatio=15,             # Margin in percentage by which the best (minimum) computed cost function value should "win" the second best value to consider the found match correct. Normally, a value within the 5-15 range is good enough
             speckleWindowSize=200,          # The maximum size of smooth disparity regions to consider noise speckles and invalidate. Set to 0. to disable speckling. Should be somewhere between 50 - 200.

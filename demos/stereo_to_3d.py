@@ -2,7 +2,7 @@
 
 # Example : project SGBM disparity to 3D points for am example pair
 # of rectified stereo images from a  directory structure
-# of left-images / right-images with filesname DATE_TIME_STAMP_{L|R}.png
+# of left-images-TTBB-durham-02-10-17-sub10 / right-images-TTBB-durham-02-10-17-sub10 with filesname DATE_TIME_STAMP_{L|R}.png
 
 # basic illustrative python script for use with provided stereo datasets
 
@@ -21,8 +21,8 @@ import random
 import csv
 
 master_path_to_dataset = "/tmp/TTBB-durham-02-10-17-sub10" # ** need to edit this **
-directory_to_cycle_left = "left-images"     # edit this if needed
-directory_to_cycle_right = "right-images"   # edit this if needed
+directory_to_cycle_left = "left-images-TTBB-durham-02-10-17-sub10"     # edit this if needed
+directory_to_cycle_right = "right-images-TTBB-durham-02-10-17-sub10"   # edit this if needed
 
 #####################################################################
 
@@ -104,13 +104,13 @@ def project_3D_points_to_2D_image_points(points):
 
 #####################################################################
 
-# resolve full directory location of data set for left / right images
+# resolve full directory location of data set for left-images / right-images images
 
 full_path_directory_left =  os.path.join(master_path_to_dataset, directory_to_cycle_left);
 full_path_directory_right =  os.path.join(master_path_to_dataset, directory_to_cycle_right);
 
 full_path_filename_left = os.path.join(full_path_directory_left, "1506942480.483420_L.png");
-full_path_filename_right = (full_path_filename_left.replace("left", "right")).replace("_L", "_R");
+full_path_filename_right = (full_path_filename_left.replace("left-images", "right-images")).replace("_L", "_R");
 
 # setup the disparity stereo processor to find a maximum of 128 disparity values
 # (adjust parameters if needed - this will effect speed to processing)
@@ -127,7 +127,7 @@ print(full_path_filename_right);
 
 if (os.path.isfile(full_path_filename_left) and os.path.isfile(full_path_filename_right)) :
 
-    # read left and right images and display in windows
+    # read left-images and right-images images and display in windows
     # N.B. despite one being grayscale both are in fact stored as 3-channel
     # RGB images so load both as such
 
@@ -190,8 +190,8 @@ if (os.path.isfile(full_path_filename_left) and os.path.isfile(full_path_filenam
 
     cv2.polylines(imgL,[pts],True,(0,255,255), 3);
 
-    cv2.imshow('left image',imgL)
-    cv2.imshow('right image',imgR)
+    cv2.imshow('left-images image',imgL)
+    cv2.imshow('right-images image',imgR)
 
     # wait for a key press to exit
 

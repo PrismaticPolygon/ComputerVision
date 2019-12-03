@@ -5,10 +5,10 @@ import numpy as np
 
 def images():
     """
-    Generator that yields paths to output disparity and annotated images
+    Generator that yields paths to output disparity and annotated TTBB-durham-02-10-17-sub10
     """
 
-    images_path = os.path.join("output", "images")
+    images_path = os.path.join("output", "TTBB-durham-02-10-17-sub10")
     disparities_path = os.path.join("output", "disparities")
 
     for filename in sorted(os.listdir(images_path)):

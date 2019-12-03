@@ -7,7 +7,7 @@ from stereo.sgbm import SGBM
 from stereo.wls import WLS
 from stereo.disparity import Disparity
 
-# Helper script for generating report images
+# Helper script for generating report TTBB-durham-02-10-17-sub10
 
 left_path = os.path.join("..", "TTBB-durham-02-10-17-sub10", "left-images", "1506943569.478977_L.png")  # Colour
 right_path = os.path.join("..", "TTBB-durham-02-10-17-sub10", "right-images", "1506943569.478977_R.png")  # Greyscale
@@ -19,24 +19,29 @@ right = cv2.imread(right_path, cv2.IMREAD_COLOR)
 def processor_comparison():
 
     processors = [SGBM(), WLS()]
-
-    cv2.imshow("Left", left)
-    cv2.imshow("Right", right)
+    processor_image = None
 
     for processor in processors:
 
-        start = time.time()
-
         disparity = processor.calculate(left, right)
 
-        print("{} took {:.2f} seconds".format(processor.__class__.__name__, time.time() - start))
+        if processor_image is None:
 
-        cv2.imshow('{} disparity'.format(processor.__class__.__name__), Disparity.to_image(disparity))
+            processor_image = processor.to_image(disparity)
+
+        else:
+
+            processor_image = np.vstack((processor_image,  processor.to_image(disparity)))
+
+    cv2.imshow("Processor image", processor_image)
+    cv2.imwrite("../output/tests/processor_comparison.png", processor_image)
 
     cv2.waitKey(0)
 
 
 def histogram_comparison():
+
+    grey_left = cv2.cvtColor(left, cv2.COLOR_BGR2GRAY)
 
     clahe = Disparity(histogram="CLAHE")
     default = Disparity()
@@ -44,7 +49,7 @@ def histogram_comparison():
     left_clahe = clahe.preprocess(left)
     left_default = default.preprocess(left)
 
-    both = np.hstack((cv2.cvtColor(left, cv2.COLOR_BGR2GRAY), left_default, left_clahe))
+    both = np.hstack((grey_left, left_default, left_clahe))
 
     cv2.imshow("Both", both)
     cv2.imwrite("../output/tests/histogram_comparison.png", both)
@@ -78,6 +83,23 @@ def tile_grid_optimisation():
     cv2.waitKey(0)
 
 
+def median_filter_comparison():
+
+    print(left.shape)
+
+    grey_left = cv2.cvtColor(left, cv2.COLOR_BGR2GRAY)
+
+    median = cv2.medianBlur(grey_left, 3)
+
+    median_comparison = np.hstack((grey_left, median))
+
+    cv2.imshow("median_comparison", median_comparison)
+    cv2.imwrite("../output/tests/median_comparison.png", median_comparison)
+
+    cv2.waitKey(0)
+
+    # There doesn't seem to be a particularly salt-and-peppery
+
 def clip_limit_optimisation():
 
     clip_limit_image = None
@@ -104,4 +126,5 @@ def clip_limit_optimisation():
     cv2.waitKey(0)
 
 
-histogram_comparison()
+# histogram_comparison()
+processor_comparison()

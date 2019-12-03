@@ -63,7 +63,7 @@ class Disparity:
 
         x, y, width, height = box
 
-        if x < self.offset_x:                   # If we're in the left region with no disparity
+        if x < self.offset_x:                   # If we're in the left-images region with no disparity
 
             width = width + x - self.offset_x
             x = self.offset_x
@@ -104,8 +104,8 @@ class Disparity:
         # Convert to greyscale
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#bilateralfilter
-        image = cv2.bilateralFilter(image, 5, 25, 25)
+        # https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_filtering/py_filtering.html#median-filtering
+        image = cv2.medianBlur(image, 3)
 
         if self.histogram == "CLAHE":
 

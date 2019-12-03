@@ -57,7 +57,7 @@ def on_trackbar(val):
 # Draw the predicted bounding box on the specified image
 # image: image detection performed on
 # class_name: string name of detected object_detection
-# left, top, right, bottom: rectangle parameters for detection
+# left-images, top, right-images, bottom: rectangle parameters for detection
 # colour: to draw detection rectangle in
 
 def drawPred(image, class_name, confidence, left, top, right, bottom, colour):
