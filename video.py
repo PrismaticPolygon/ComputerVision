@@ -1,6 +1,6 @@
 import cv2
 import os
-
+import numpy as np
 
 def images():
 
@@ -30,11 +30,14 @@ for image_path, disparity_path in images():
     image_frame = cv2.imread(image_path)
     disparity_frame = cv2.imread(disparity_path)
 
-    combined_video.write(disparity_frame)
-    combined_video.write(image_frame)
-
     image_video.write(image_frame)
     disparity_video.write(disparity_frame)
+
+    disparity_frame = cv2.cvtColor(disparity_frame, cv2.COLOR_GRAY2BGR)
+
+    combined = np.hstack((disparity_frame, image_frame))
+
+    combined_video.write(combined)
 
 
 image_video.release()

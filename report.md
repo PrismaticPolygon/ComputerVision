@@ -89,7 +89,9 @@ offers superior contrast enhancement.
 # Dense stereo
 
 Two dense stereo approaches were compared. The first, Semi-Global Block Matching (SGBM), is...
-It was introduced by Hirschmuller (2005) [here](https://ieeexplore.ieee.org/document/1467526).
+It was introduced by Hirschmuller (2005) [here](https://ieeexplore.ieee.org/document/1467526). 
+
+Perhaps we ought to use the....
 
 
 
@@ -108,9 +110,16 @@ Poor contrast due to glare.
 Clip limit lies between 0 and 256. Common values limit the resulting amplification to between 3 and 4.
 Nah. They are bad values. We're not trying to make it look unrealistic, after all.
 
+# Object range estimation strategy for challenging conditions
+
+Using bounding boxes is often confounding. Occlusion is a particular issue. It was observed that YOLO would
+frequently draw boxes both above and below the actual object. To alleviate this issue, only the central third
+was used to determine disparity.
+
+Insert a sample here, perhaps?
+ 
 
 A tool was used to tune StereoBM, available [here](https://github.com/vmarquet/opencv-disparity-map-tuner)
-
 
 `cv::filterSpeckles` can be integrated into `SGBM` by setting `speckleWindowSize` and `speckleRange`; this is done here
 for conciseness. 
@@ -119,6 +128,10 @@ maxDisparity should be chosen based on your camera's setup.
 
 Pre-processing is typically performed to reduce photometric variations between the images.
 
+
+[Literature review](https://www.hindawi.com/journals/js/2016/8742920/)
+
+We should work this in somewhere.
 
 
 Weighted Least Squares (WLS) was chosen as the alternative dense stereo ranging method.
