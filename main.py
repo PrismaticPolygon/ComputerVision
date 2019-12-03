@@ -10,6 +10,8 @@ import shutil
 # TODO: process / project only the region in front of the car
 # TODO: test on more images
 # TODO: further investigate pre- and post- filtering algorithms.
+# TODO: comment code
+# TODO: finish report.
 
 MASTER_PATH_TO_DATASET = "TTBB-durham-02-10-17-sub10"
 LEFT_DIR = "left-images"
@@ -22,7 +24,7 @@ def images(start=""):
 
     for left_file in sorted(os.listdir(left_path)):
 
-        if len(start) > 0 and not start in left_file:
+        if len(start) > 0 and start not in left_file:
 
             continue
 

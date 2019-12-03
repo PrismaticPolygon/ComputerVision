@@ -11,8 +11,9 @@ class Disparity:
 
         return np.uint8(image)
 
-    def __init__(self):
+    def __init__(self, histogram="default", clip_limit=3, tile_grid_size=(16, 16)):
 
+        self.histogram = histogram
         self.offset_x = 160
         self.max_y = 395
 
@@ -20,27 +21,27 @@ class Disparity:
         self.focal_length_px = 399.9745178222656    # in pixels
         self.focal_length_m = 0.0048                # in metres
 
-        # There was something clever that I could use these for...
-
         self.left_camera_matrix = np.array([
             [399.9745178222656,               0.0, 474.5, 0.0],
-            [0.0              , 399.9745178222656, 262.0, 0.0],
-            [0.0              ,               0.0,   1.0, 0.0]
+            [              0.0, 399.9745178222656, 262.0, 0.0],
+            [              0.0,               0.0,   1.0, 0.0]
         ])
 
         self.right_camera_matrix = np.array([
             [399.9745178222656,               0.0, 474.5, -83.61897277832031],
-            [0.0              , 399.9745178222656, 262.0,                0.0],
-            [0.0              ,               0.0,   1.0,                0.0]
+            [              0.0, 399.9745178222656, 262.0,                0.0],
+            [              0.0,               0.0,   1.0,                0.0]
         ])
 
         # https://docs.opencv.org/3.4/d6/db6/classcv_1_1CLAHE.html
         # https://docs.opencv.org/master/d5/daf/tutorial_py_histogram_equalization.html
 
-        self.histogram_equaliser = cv2.createCLAHE(
-            clipLimit=2.0,          # Sets threshold for contrast limiting
-            tileGridSize=(8, 8)     # Input image will be divided into equally sized rectangular tiles
-        )
+        if histogram == "CLAHE":
+
+            self.histogram_equaliser = cv2.createCLAHE(
+                clipLimit=clip_limit,          # Sets threshold for contrast limiting
+                tileGridSize=tile_grid_size    # Input image will be divided into equally sized rectangular tiles
+            )
 
     def get_box_distance(self, disparity, box):
 
@@ -99,6 +100,12 @@ class Disparity:
         # https://docs.opencv.org/3.4/d5/d69/tutorial_py_non_local_means.html
         # image = cv2.fastNlMeansDenoising(image, h=10, templateWindowSize=7, searchWindowSize=21)
 
-        image = self.histogram_equaliser.apply(image)
+        if self.histogram == "CLAHE":
+
+            image = self.histogram_equaliser.apply(image)
+
+        else:
+
+            image = cv2.equalizeHist(image)
 
         return image
