@@ -3,6 +3,9 @@ from stereo.disparity import Disparity
 
 
 class SGBM(Disparity):
+    """
+    Class encapsulating the Semi-Global Block Matching stereo filter
+    """
 
     def __init__(self):
 

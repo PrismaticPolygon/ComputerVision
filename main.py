@@ -1,18 +1,18 @@
 import os
 import cv2
+import shutil
+import numpy as np
 from yolo import YOLO
 from stereo.wls import WLS
-import numpy as np
-import shutil
 
 # TODO: investigate "statistics" and "heuristics" to produce an accurate object range.
 # TODO: investigate "frame-to-frame temporal constraints"
 # TODO: process / project only the region in front of the car
-# TODO: test on more images
 # TODO: further investigate pre- and post- filtering algorithms.
 # TODO: comment code
 # TODO: investigate HSL histogram equalisation (https://github.com/YuAo/Accelerated-CLAHE)
 # TODO: finish report.
+# TODO: add copyright
 
 MASTER_PATH_TO_DATASET = "TTBB-durham-02-10-17-sub10"
 LEFT_DIR = "left-images"
@@ -40,12 +40,12 @@ def images(start=""):
 
 
 yolo = YOLO()
-wls = WLS()
+wls = WLS(histogram="CLAHE")
 
-pause_playback = False
-save_images = True
+PAUSE_PLAYBACK = False
+SAVE_IMAGES = True
 
-if save_images:
+if SAVE_IMAGES:
 
     if os.path.exists("output"):
 
@@ -58,6 +58,8 @@ if save_images:
     os.mkdir(os.path.join("output", "disparities"))
     os.mkdir(os.path.join("output", "images"))
     os.mkdir(os.path.join("output", "videos"))
+
+# It still looks very different to my first one.
 
 for left_file, right_file, left_file_path, right_file_path in images():
 
@@ -94,7 +96,7 @@ for left_file, right_file, left_file_path, right_file_path in images():
     cv2.imshow("Disparity", wls.to_image(disparity_map))
     cv2.imshow("Result", left)
 
-    if save_images:
+    if SAVE_IMAGES:
 
         out_image_path = os.path.join("output", "images", left_file)
         out_disparity_path = os.path.join("output", "disparities", left_file)
@@ -102,12 +104,12 @@ for left_file, right_file, left_file_path, right_file_path in images():
         cv2.imwrite(out_disparity_path, wls.to_image(disparity_map))
         cv2.imwrite(out_image_path, left)
 
-    key = cv2.waitKey(40 * (not pause_playback)) & 0xFF  # wait 40ms (i.e. 1000ms / 25 fps = 40 ms)
+    key = cv2.waitKey(40 * (not PAUSE_PLAYBACK)) & 0xFF  # wait 40ms (i.e. 1000ms / 25 fps = 40 ms)
 
-    if key == ord('x'):  # exit
+    if key == ord('x'):    # exit
 
         break  # exit
 
     elif key == ord(' '):  # pause (on next frame)
 
-        pause_playback = not pause_playback
+        PAUSE_PLAYBACK = not PAUSE_PLAYBACK

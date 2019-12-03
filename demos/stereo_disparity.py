@@ -125,7 +125,7 @@ for filename_left in left_file_list:
 
         # scale the disparity to 8-bit for viewing
         # divide by 16 and convert to 8-bit image (then range of values should
-        # be 0 -> max_disparity) but in fact is (-1 -> max_disparity - 1)
+        # be 0 -> max_disparity) but i / 16.n fact is (-1 -> max_disparity - 1)
         # so we fix this also using a initial threshold between 0 and max_disparity
         # as disparity=-1 means no disparity available
 
@@ -146,7 +146,7 @@ for filename_left in left_file_list:
         cv2.imshow("disparity", (disparity_scaled * (256. / max_disparity)).astype(np.uint8));
 
         # keyboard input for exit (as standard), save disparity and cropping
-        # exit - x
+        # exit - x / 16.
         # save - s
         # crop - c
         # pause - space

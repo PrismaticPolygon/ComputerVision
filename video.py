@@ -21,8 +21,8 @@ combined_video_path = os.path.join("output", "videos", "ffgt86.avi")
 
 frame_shape = (1024, 544)
 
-disparity_video = cv2.VideoWriter(disparity_video_path, 0, 30, frame_shape)
-image_video = cv2.VideoWriter(image_video_path, 0, 30, frame_shape)
+disparity_video = cv2.VideoWriter(disparity_video_path, 0, 10, frame_shape)
+image_video = cv2.VideoWriter(image_video_path, 0, 10, frame_shape)
 combined_video = cv2.VideoWriter(combined_video_path, 0, 1, frame_shape)
 
 for image_path, disparity_path in images():

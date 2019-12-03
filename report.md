@@ -22,6 +22,11 @@ Typical operations include:
 * Subtraction of mean values computed in nearby pixels [here](https://www.researchgate.net/publication/228359300_Real_time_correlation-based_stereo_algorithm_implementations_and_application)
 * Bilateral filtering [here](https://www-robotics.jpl.nasa.gov/publications/Adnan_Ansar/3dpvt.pdf)
 
+## Bilateral filtering
+
+The bilateral filter was introduced by Tomasi and Manduchi (1991) [here](https://users.soe.ucsc.edu/~manduchi/Papers/ICCV98.pdf).
+It is used to smooth images while preserving edges.
+
 ## Histogram equalisation
 
 The purpose of histogram equalisation is to increase the contrast of images. The images in the dataset
@@ -36,7 +41,6 @@ enhancing edge definition. It has a tendency to over-amplify noise in homogeneou
 by contrast-limiting AHE (CLAHE) first introduced by [Zuiderveld (1994)](https://dl.acm.org/citation.cfm?id=180940).
 
 ### CLAHE vs "default"
-
 
 The right image uses CLAHE. Details are a lot sharper, and details in the upper left-hand
 region have been preserved, while the lower right-hand region has been simultaneously lightened.
@@ -84,7 +88,13 @@ offers superior contrast enhancement.
 
 # Dense stereo
 
-Two dense stereo approaches were comapred. The first, Semi-Global Block Matching (SGBM), is...
+Two dense stereo approaches were compared. The first, Semi-Global Block Matching (SGBM), is...
+It was introduced by Hirschmuller (2005) [here](https://ieeexplore.ieee.org/document/1467526).
+
+
+
+
+
 The second, Weighted Least Squares (WLS) is....
 
 Much research has been done into choosing optimal parameters for *StereoBM*

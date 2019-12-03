@@ -56,21 +56,27 @@ class Disparity:
 
             height = self.max_y - y
 
+        # tar_left, tar_right = int(x, + width / 3)
+
         disparity_box = disparity[y: y + height, x: x + width]
+
+        disparity_box_average = np.average(disparity_box)
 
         disparity_box[disparity_box < 0] = 0    # Remove values below 0
 
-        distance_box = np.divide(self.focal_length_px * self.baseline_m, disparity_box, out=np.zeros_like(disparity_box),
-                         where=disparity_box > 0)
+        distance = self.focal_length_px * self.baseline_m / (disparity_box_average * 4)
+
+
+        # distance_box = np.divide(self.focal_length_px * self.baseline_m, disparity_box, out=np.zeros_like(disparity_box),
+        #                  where=disparity_box > 0)
 
         # disparity_median = np.nanmedian(disparity_box)
-        # Absurd results.
 
         # depth (metres) = baseline (metres) * focal_length (pixels) / disparity (pixels)
 
         # SO how do we get Nan values out of this?
 
-        return np.mean(distance_box)
+        return distance
 
         # https://stackoverflow.com/questions/26248654/how-to-return-0-with-divide-by-zero
         # return np.divide(self.focal_length_px * self.baseline_m, disparity, out=np.zeros_like(disparity),
@@ -89,16 +95,21 @@ class Disparity:
         #
         #     return 0
 
+    # Now we look into bilateral filters.
+    # Normally applies a Laplacian of Gaussian, approximated
+    # by a difference of Gaussian.
+
+    def postprocess(self, image):
+
+        pass
+
     def preprocess(self, image):
 
+        # Convert to greyscale
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        # Appears subjectively to improve performance
-
-        # image = np.power(image, 0.75).astype('uint8')
-
-        # https://docs.opencv.org/3.4/d5/d69/tutorial_py_non_local_means.html
-        # image = cv2.fastNlMeansDenoising(image, h=10, templateWindowSize=7, searchWindowSize=21)
+        # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#bilateralfilter
+        image = cv2.bilateralFilter(image, 5, 10, 10)
 
         if self.histogram == "CLAHE":
 
@@ -107,5 +118,9 @@ class Disparity:
         else:
 
             image = cv2.equalizeHist(image)
+
+        # Appears to subjectively improve disparity calculation
+
+        # image = np.power(image, 0.75)
 
         return image
