@@ -18,7 +18,7 @@ class WLS(Disparity):
 
         self.left_matcher = cv2.StereoSGBM_create(
             minDisparity=0,                 # Minimum possible disparity value. Defaults to 0.
-            numDisparities=128,             # Maximum disparity - minimum disparity. Defaults to 16.
+            numDisparities=self.max_disparity,             # Maximum disparity - minimum disparity. Defaults to 16.
             blockSize=5,                    # Matched blocked size. Must be an odd number >= 1. Normally between 3 and 11. Defaults to 3.
             P1=8 * 3 * window_size ** 2,    # First parameter controlling disparity smoothness. The penalty on the disparity change by +- 1 between pixels.
             P2=32 * 3 * window_size ** 2,   # Second parameter controlling disparity smoothness. The larger the values, the smoother the disparity. Must be greater than P1
@@ -45,9 +45,9 @@ class WLS(Disparity):
         left = self.preprocess(left)
         right = self.preprocess(right)
 
-        disparity_left = self.left_matcher.compute(left, right) / 16.
-        disparity_right = self.right_matcher.compute(right, left) / 16.
+        disparity_left = self.left_matcher.compute(left, right)
+        disparity_right = self.right_matcher.compute(right, left)
 
         disparity = self.wls_filter.filter(disparity_left, left, None, disparity_right)
 
-        return disparity
+        return self.postprocess(disparity)

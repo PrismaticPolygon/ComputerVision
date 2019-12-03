@@ -43,6 +43,8 @@ class Disparity:
         self.focal_length_px = 399.9745178222656    # in pixels
         self.focal_length_m = 0.0048                # in metres
 
+        self.max_disparity = 128
+
         # https://docs.opencv.org/3.4/d6/db6/classcv_1_1CLAHE.html
         # https://docs.opencv.org/master/d5/daf/tutorial_py_histogram_equalization.html
 
@@ -81,6 +83,17 @@ class Disparity:
         else:
 
             return 0.0
+
+    def postprocess(self, disparity: np.ndarray) -> np.ndarray:
+
+        _, disparity = cv2.threshold(disparity, 0, self.max_disparity * 16, cv2.THRESH_TOZERO)
+
+        disparity = (disparity / 16.).astype(np.uint8)
+
+        # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#bilateralfilter
+        disparity = cv2.bilateralFilter(disparity, 5, 25, 25)
+
+        return disparity
 
     def preprocess(self, image: np.ndarray) -> np.ndarray:
         """

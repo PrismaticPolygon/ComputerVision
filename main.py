@@ -61,7 +61,7 @@ if SAVE_IMAGES:
     os.mkdir(disparities_output_path)
 
 
-for left_file, right_file, left_file_path, right_file_path in images(start="1506943035.478214_L.png"):
+for left_file, right_file, left_file_path, right_file_path in images():
 
     print("")
     print(left_file)
