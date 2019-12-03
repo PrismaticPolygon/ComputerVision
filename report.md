@@ -3,35 +3,40 @@ Detail approach to the problem and the success in the task specified.
 Provide illustrative images of the intermediate results of the system (e.g. overlays), results of the processing stages.
 Titles, captions, references and graphs do not count towards the total word count of the report.
 
+Scene changes in terrain type, illumination conditions, clutter, and road markings.
 
+Efficiency is less important than performance.
 
 # Pre-processing
 
-The main purpose of pre-processing is to remove photometric distortion.
+The main purpose of pre-processing is to remove photometric distortion. This can take many forms: specular surfaces,
+foreshortening, perspective distortions, uniform / ambiguous regions, repetitive / ambiguous patterns, transparent objects,
+occlusions and discontinuities. Of particular note in the provided dataset are specular surfaces 
+(i.e. reflections off cars), transparent objects (e.g. windows).
 
-The pre-processing steps were based off the results found in [this study](https://ieeexplore.ieee.org/document/8284645),
+The steps taken in pre-processing were based off [this study](https://ieeexplore.ieee.org/document/8284645),
 namely the use of a median filter, Weiner filter, and histogram equalisation.
 
+Typical operations include:
+* Laplacian of Gaussian (LoG) filtering [here](https://www.ri.cmu.edu/publications/dehttps://docs.opencv.org/2.4/modules/imgproc/doc/histograms.html?highlight=equalizehist#equalizehistvelopment-of-a-video-rate-stereo-machine-2/)
+* Subtraction of mean values computed in nearby pixels [here](https://www.researchgate.net/publication/228359300_Real_time_correlation-based_stereo_algorithm_implementations_and_application)
+* Bilateral filtering [here](https://www-robotics.jpl.nasa.gov/publications/Adnan_Ansar/3dpvt.pdf)
 
-The purpose of histogram equalisation is used to increase the global contrast of images. The images in the dataset
+## Histogram equalisation
+
+The purpose of histogram equalisation is to increase the contrast of images. The images in the dataset
 are ideal for equalisation - they have backgrounds and foregrounds that are both light and dark.
 
-Histogram equalisation works better when applied to 16-bit grayscale images.
-It can produce undesirable effects (like a visible image gradient) when applied to images with a low color depth.
-Applying it to an 8-bit image will further reduce the color depth of the image. 
+However, regular equalisation performs poorly when the image contains regions that are significantly lighter or darker 
+than most of the image, as the contrast in those regions will not be sufficiently enhanced. 
 
-Results are below. The default operation in the scripts provided - raising the images to the power of `3/4` - seemed
-to be incompatible with subsequent operations, and so was discarded. A comparison of two histogram equalisation
-techniques is imaged below, using the default parameters recommended on OpenCV.
+Adaptive histogram equalisation (AHE) computes multiple histograms, each corresponding to a distinct section of the image,
+and uses them to re-distribute the lightness values of an image. AHE is therefore suitable for local contrast and 
+enhancing edge definition. It has a tendency to over-amplify noise in homogeneous regions, a shortcoming tackled
+by contrast-limiting AHE (CLAHE) first introduced by [Zuiderveld (1994)](https://dl.acm.org/citation.cfm?id=180940).
 
-Contrast-limiting adaptive adaptive histogram equalisation (CLAHE)
+### CLAHE vs "default"
 
-The left-hand image is a `left` image from the dataset, converted to greyscale, and chosen for high contrast.
-Objects in the shaded right-hand region are difficult to distinguish; 
-details in the upper left-hand region are obscured by bright light.
-
-The centre image is 'default' histogram equalisation `cv2.equalizeHist`. 
-It appears 'washed out'.
 
 The right image uses CLAHE. Details are a lot sharper, and details in the upper left-hand
 region have been preserved, while the lower right-hand region has been simultaneously lightened.
@@ -45,18 +50,36 @@ and uses them to re-distribute the lightness values of the image.
 It is therefore suitable for improving the local contrast and enhancing the definitions of edges 
 in each region. Has a tendency of over-amplify noise in relatively
 homogeneous regions of an image. CLAHE prevents this by limiting the amplification
-by clipping the histogram at a pre-defined value.
+by clipping the histogram at a pre-defined value.  
 
-% Then we can arrange them into a nice stack. 
+### Parameters
+
+There are two parameters for CLAHE: 
+* `tile_grid_size`, which defines the size of the tiles the input image will be divided into. Standard is `(8, 8)`. Minimum is `(2, 2)`.
+Should be "larger than the size of the features to be preserved", according to [this site](https://imagej.net/Enhance_Local_Contrast_(CLAHE),
+but the size of features is difficult to quantify.
+* `clip_limit`, which defines the threshold for contrast limiting. Standard is `2.0`. Range is `[0, 256]`.
+Values in the range `[3, 4]` are recommended [here](https://en.wikipedia.org/wiki/Adaptive_histogram_equalization#Contrast_Limited_AHE).
+
+Some work has been done to automate the selection of parameters for CLAHE, [here](https://pdfs.semanticscholar.org/dc4d/eadb948bb4a1b06d4745f804a49d72f5b19e.pdf),
+although it was deemed out-of-scope for this project. Parameters were therefore tweaked by hand.
+
+[This repo](https://github.com/YuAo/Accelerated-CLAHE) took a novel approach: applying CLAHE only to the luminance
+channel of a colour image, which prevents unwanted hue and saturation change. However, this was not found to improve results.
+
+### Results
+Some research has been performed into automating the selection of parameters for CLAHE, but was deemed out-of-scope for this
+project; parameters were tweaked by hand, in reasonable ranges. 
 
 
-Typical operations include Laplacian of Gaussian (LoG) filtering and bilateral filtering.
+A comparison of two histogram equalisation techniques is imaged below, using the selected parameters. 
 
+The left-hand image is a `left` image from the dataset, converted to greyscale, and chosen for high contrast.
+Objects in the shaded right-hand region are difficult to distinguish; details in the upper left-hand region are obscured by bright light.
+The centre image is the 'default' histogram equalisation `cv2.equalizeHist`. The right image is CLAHE. CLAHE clearly
+offers superior contrast enhancement.
 
-Laplacian of Gaussian (LoG) filtering (T. Kanade, H. Kato, S. Kimura, A. Yoshida, and K. Oda, Development of a Video-Rate Stereo Machine International Robotics and Systems Conference (IROS '95), Human Robot Interaction and Cooperative Robots, 1995 )
-Subtraction of mean values computed in nearby pixels ( O. Faugeras, B. Hotz, H. Mathieu, T. Viville, Z. Zhang, P. Fua, E. Thron, L. Moll, G. Berry, Real-time correlation-based stereo: Algorithm. Implementation and Applications, INRIA TR n. 2013, 1993)
-Bilateral filtering (A. Ansar, A. Castano, L. Matthies, Enhanced real-time stereo using bilateral filtering IEEE Conference on Computer Vision and Pattern Recognition 2004)
-Census transform
+![A comparison of CLAHE and histogram equalisation](output/tests/histogram_comparison.png)
 
 
 # Dense stereo
@@ -64,48 +87,16 @@ Census transform
 Two dense stereo approaches were comapred. The first, Semi-Global Block Matching (SGBM), is...
 The second, Weighted Least Squares (WLS) is....
 
-
-
-
 Much research has been done into choosing optimal parameters for *StereoBM*
 
 https://jayrambhia.com/blog/disparity-mpas
-`
-sgbm.SADWindowSize = 5;
-sgbm.numberOfDisparities = 192;
-sgbm.preFilterCap = 4;
-sgbm.minDisparity = -64;
-sgbm.uniquenessRatio = 1;
-sgbm.speckleWindowSize = 150;
-sgbm.speckleRange = 2;
-sgbm.disp12MaxDiff = 10;
-sgbm.fullDP = false;
-sgbm.P1 = 600;
-sgbm.P2 = 2400;
-`
 
-sparse - feature point based. I could prbably creack one out.
+Poor contrast due to glare.
 
-Scene changes in terrain type, illumination conditions, clutter, and road markings.
 
-Efficiency is less important performance.
 
-Regular equalisation performs poorly when the image contains regions that are significantly ligher or darker than most of the image.
-As the contrast in those regions will not be sufficiently enhanced. 
-
-Contrast at smaller scales is enhanced. Contrast at larger scales is reduced.
-
-Both M and N must be at least 2.
-
-Some research has been performed into automating the selection of parameters for CLAHE, but was deemed out-of-scope for this
-project; parameters were tweaked by hand, in reasonable ranges. 
-
-Best results were found with higher-than-expected tile-grid-sizes; around 16 seemed to be optimal.
-
-3 seemed to be optimal. Values of 3 - 4 are recommended [here](https://en.wikipedia.org/wiki/Adaptive_histogram_equalization#Contrast_Limited_AHE)
-
-A study of CLAHE here recommends a value of 0.25; however, in some implementations (e.g. MATLAB, the allowable range is `[0, 1]`),
-But then it's not clear what my limits are either. 
+Clip limit lies between 0 and 256. Common values limit the resulting amplification to between 3 and 4.
+Nah. They are bad values. We're not trying to make it look unrealistic, after all.
 
 
 A tool was used to tune StereoBM, available [here](https://github.com/vmarquet/opencv-disparity-map-tuner)
@@ -117,6 +108,8 @@ for conciseness.
 maxDisparity should be chosen based on your camera's setup.
 
 Pre-processing is typically performed to reduce photometric variations between the images.
+
+
 
 Weighted Least Squares (WLS) was chosen as the alternative dense stereo ranging method.
 It was found to be far superior to the basic SGBM method.

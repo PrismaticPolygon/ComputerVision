@@ -11,6 +11,7 @@ import shutil
 # TODO: test on more images
 # TODO: further investigate pre- and post- filtering algorithms.
 # TODO: comment code
+# TODO: investigate HSL histogram equalisation (https://github.com/YuAo/Accelerated-CLAHE)
 # TODO: finish report.
 
 MASTER_PATH_TO_DATASET = "TTBB-durham-02-10-17-sub10"

@@ -96,11 +96,6 @@ def clip_limit_optimisation():
     left_path = os.path.join("..", "TTBB-durham-02-10-17-sub10", "left-images", "1506943569.478977_L.png")     # Colour
     right_path = os.path.join("..", "TTBB-durham-02-10-17-sub10", "right-images", "1506943569.478977_R.png")   # Greyscale
 
-    # Having a clip_limit of 0 completely removes the dark areas. That might actually prove to be superior. It depends
-    # what's desirable.
-
-    #
-
     left = cv2.imread(left_path, cv2.IMREAD_COLOR)
 
     clip_limit_image = None
@@ -125,6 +120,5 @@ def clip_limit_optimisation():
     cv2.imwrite("../output/tests/clip_limit_image.png", clip_limit_image)
 
     cv2.waitKey(0)
-
 
 histogram_comparison()

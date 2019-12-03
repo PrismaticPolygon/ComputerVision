@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from stereo.disparity import Disparity
 
+# Yeah. Just tidy it up and pretend to put refernces in there.
 
 class WLS(Disparity):
 
