@@ -5,7 +5,7 @@ import numpy as np
 class Disparity:
 
     @staticmethod
-    def to_image(disparity):
+    def to_image(disparity: np.ndarray) -> np.ndarray:
 
         image = cv2.normalize(src=disparity, dst=disparity, beta=0, alpha=255, norm_type=cv2.NORM_MINMAX)
 
@@ -43,7 +43,14 @@ class Disparity:
                 tileGridSize=tile_grid_size    # Input image will be divided into equally sized rectangular tiles
             )
 
-    def get_box_distance(self, disparity, box):
+    def get_box_distance(self, disparity: np.ndarray, box):
+        """
+        Return the "distance" of a bounding box. Computed using some clever heuristics.
+
+        :param disparity: A disparity map
+        :param box: A bounding box. A tuple (x, y, width, height)
+        :return:
+        """
 
         x, y, width, height = box
 
@@ -64,7 +71,7 @@ class Disparity:
 
         disparity_box[disparity_box < 0] = 0    # Remove values below 0
 
-        distance = self.focal_length_px * self.baseline_m / (disparity_box_average * 4)
+        distance = self.focal_length_px * self.baseline_m / (disparity_box_average * 2)
 
 
         # distance_box = np.divide(self.focal_length_px * self.baseline_m, disparity_box, out=np.zeros_like(disparity_box),
@@ -101,7 +108,19 @@ class Disparity:
 
     def postprocess(self, image):
 
-        pass
+        if self.histogram == "CLAHE":
+
+            image = self.histogram_equaliser.apply(image)
+
+        else:
+
+            image = cv2.equalizeHist(image)
+
+        # Appears to subjectively improve disparity calculation
+
+        # image = np.power(image, 0.75)
+
+        return image
 
     def preprocess(self, image):
 

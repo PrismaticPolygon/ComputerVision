@@ -14,6 +14,7 @@ from stereo.wls import WLS
 # TODO: finish report.
 # TODO: add copyright
 
+
 MASTER_PATH_TO_DATASET = "TTBB-durham-02-10-17-sub10"
 LEFT_DIR = "left-images"
 RIGHT_DIR = "right-images"
@@ -47,19 +48,25 @@ SAVE_IMAGES = True
 
 if SAVE_IMAGES:
 
-    if os.path.exists("output"):
+    image_output_path = os.path.join("output", "images")
+    disparities_output_path = os.path.join("output", "disparities")
 
-        shutil.rmtree("output")
+    if not os.path.exists("output"):
 
-    os.mkdir("output")
+        os.mkdir("output")
 
-    # I am also getting far too many NANs.
+    if os.path.exists(image_output_path):
 
-    os.mkdir(os.path.join("output", "disparities"))
-    os.mkdir(os.path.join("output", "images"))
-    os.mkdir(os.path.join("output", "videos"))
+        shutil.rmtree(image_output_path)
 
-# It still looks very different to my first one.
+    os.mkdir(image_output_path)
+
+    if os.path.exists(disparities_output_path):
+
+        shutil.rmtree(disparities_output_path)
+
+    os.mkdir(disparities_output_path)
+
 
 for left_file, right_file, left_file_path, right_file_path in images():
 

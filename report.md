@@ -60,7 +60,7 @@ by clipping the histogram at a pre-defined value.
 
 There are two parameters for CLAHE: 
 * `tile_grid_size`, which defines the size of the tiles the input image will be divided into. Standard is `(8, 8)`. Minimum is `(2, 2)`.
-Should be "larger than the size of the features to be preserved", according to [this site](https://imagej.net/Enhance_Local_Contrast_(CLAHE),
+Should be "larger than the size of the features to be preserved", according to [this site](https://imagej.net/Enhance_Local_Contrast_(CLAHE)),
 but the size of features is difficult to quantify.
 * `clip_limit`, which defines the threshold for contrast limiting. Standard is `2.0`. Range is `[0, 256]`.
 Values in the range `[3, 4]` are recommended [here](https://en.wikipedia.org/wiki/Adaptive_histogram_equalization#Contrast_Limited_AHE).
@@ -133,10 +133,19 @@ Pre-processing is typically performed to reduce photometric variations between t
 
 We should work this in somewhere.
 
+It is difficult to state accurate how quantitatively accurate the developed system is without a ground truth.
+
 
 Weighted Least Squares (WLS) was chosen as the alternative dense stereo ranging method.
 It was found to be far superior to the basic SGBM method.
 
+Quantitative: howwell does it work?
+
+using the whole dataset, or a subset of it, devise some way of measuring performance quantatively 
+(i.e. how well does it work?).  e.g. "Based on a representative subset of N examples, this approach works XX% of the time for the detection of Y regions .....and ..... etc."
+
+Q: In the assignment, what do you mean by quantitative evidence of performance ?
+A: show examples of it working
 
 # Sources
 * https://www.ncbi.nlm.nih.gov/pubmed/28350382
