@@ -32,3 +32,9 @@ class SGBM(Disparity):
         right = self.preprocess(right)
 
         return self.sgbm_filter.compute(left, right) / 16.
+
+        # disparity = (disparity - min_disp) / num_disp. What is the purpose of this?
+
+        # That's my disparity map, right?
+        # Not distance. So why does it look different to the previous one that I calculated?
+        # Cause we had some strange noise on my laptop.

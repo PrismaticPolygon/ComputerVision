@@ -32,6 +32,8 @@ class WLS(Disparity):
         # http://timosam.com/python_opencv_depthimage
         # https://docs.opencv.org/3.4/d9/d51/classcv_1_1ximgproc_1_1DisparityWLSFilter.html#ab26fa73918b84d1a0e57951e00704708
 
+        # I could segment out the sky....
+
         self.wls_filter = cv2.ximgproc.createDisparityWLSFilter(matcher_left=self.left_matcher)
 
         self.wls_filter.setLambda(80000)     # The amount of regularisation. Large values force filtered disparity map edges to adhere more to source image edges. Typically 8000.
