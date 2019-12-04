@@ -8,7 +8,7 @@ def images():
     Generator that yields paths to output disparity and annotated TTBB-durham-02-10-17-sub10
     """
 
-    images_path = os.path.join("output", "TTBB-durham-02-10-17-sub10")
+    images_path = os.path.join("output", "images")
     disparities_path = os.path.join("output", "disparities")
 
     for filename in sorted(os.listdir(images_path)):
@@ -25,25 +25,30 @@ combined_video_path = os.path.join("output", "videos", "ffgt86.avi")
 
 frame_shape = (1024, 544)
 
-disparity_video = cv2.VideoWriter(disparity_video_path, 0, 10, frame_shape)
-image_video = cv2.VideoWriter(image_video_path, 0, 10, frame_shape)
-# combined_video = cv2.VideoWriter(combined_video_path, 0, 1, frame_shape)
+codec = cv2.VideoWriter_fourcc("M", "J", "P", "G")
+fps = 2
+
+# disparity_video = cv2.VideoWriter(disparity_video_path, codec, fps, frame_shape)
+# image_video = cv2.VideoWriter(image_video_path, codec, fps, frame_shape)
+combined_video = cv2.VideoWriter(combined_video_path, codec, fps, (2048, 544))
+
+i = 0
 
 for image_path, disparity_path in images():
 
-    image_frame = cv2.imread(image_path)
-    disparity_frame = cv2.imread(disparity_path)
+    if i < 170:
 
-    image_video.write(image_frame)
-    disparity_video.write(disparity_frame)
+        image_frame = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        disparity_frame = cv2.imread(disparity_path, cv2.IMREAD_COLOR)
 
-    # disparity_frame = cv2.cvtColor(disparity_frame, cv2.COLOR_GRAY2BGR)
-    #
-    # combined = np.hstack((disparity_frame, image_frame))
-    #
-    # combined_video.write(combined)
+        combined = np.hstack((disparity_frame, image_frame))
 
+        combined_video.write(combined)
 
-image_video.release()
-disparity_video.release()
-# combined_video.release()
+        i += 1
+
+    else:
+
+        break
+
+combined_video.release()

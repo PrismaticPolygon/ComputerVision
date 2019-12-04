@@ -37,7 +37,7 @@ class YOLO:
 
     def __init__(self):
 
-        self.confidence_T = 0.55  # Confidence threshold
+        self.confidence_T = 0.5  # Confidence threshold
         self.nms_T = 0.4  # Non-maxima suppression threshold
 
         self.input_height = 416  # Height of the network's input image
@@ -82,7 +82,7 @@ class YOLO:
 
         label = self.labels[class_id]
 
-        if label != "train":    # Curious number of false positives of trains
+        if label != "train" and label != "bench":    # Curious number of false positives of trains
 
             cv2.rectangle(image, (left, top), (left + width, top + height), color, 3)
 
@@ -106,6 +106,10 @@ class YOLO:
         # Run forward inference to get output of the final layer
 
         results = self.net.forward(self.output_layer_names)
+
+        # t, _ = self.net.getPerfProfile()
+        #
+        # print('Inference time: %.2f ms' % (t * 1000.0 / cv2.getTickFrequency()))
 
         class_IDs, confidences, boxes = self.postprocess(frame, results)
 

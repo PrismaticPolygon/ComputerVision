@@ -15,7 +15,16 @@
 
 import cv2
 import numpy as np
+import scipy.stats as st
 
+# https://stackoverflow.com/questions/29731726/how-to-calculate-a-gaussian-kernel-matrix-efficiently-in-numpy
+def gkern(kernlen=21, nsig=3):
+    """Returns a 2D Gaussian kernel."""
+
+    x = np.linspace(-nsig, nsig, kernlen+1)
+    kern1d = np.diff(st.norm.cdf(x))
+    kern2d = np.outer(kern1d, kern1d)
+    return kern2d/kern2d.sum()
 
 class Disparity:
     """
@@ -33,8 +42,9 @@ class Disparity:
 
         return np.uint8(image)
 
-    def __init__(self, histogram="default", clip_limit=3, tile_grid_size=(12, 12)):
+    def __init__(self, histogram="default", bilateral=False, clip_limit=3, tile_grid_size=(12, 12)):
 
+        self.bilateral = bilateral
         self.histogram = histogram
         self.offset_x = 135
         self.max_y = 395
@@ -72,8 +82,19 @@ class Disparity:
 
             height = self.max_y - y
 
+        kernel = gkern(max(height, width))
+
         disparity_box = disparity[y: y + height, x: x + width]
-        disparity_box_average = np.average(disparity_box)
+
+        kernel = np.resize(kernel, disparity_box.shape)
+
+        try:
+
+            disparity_box_average = np.average(disparity_box, weights=kernel)
+
+        except ZeroDivisionError:
+
+            disparity_box_average = np.mean(disparity_box)
 
         if disparity_box_average != 0:
 
@@ -90,8 +111,10 @@ class Disparity:
 
         disparity = (disparity / 16.).astype(np.uint8)
 
-        # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#bilateralfilter
-        disparity = cv2.bilateralFilter(disparity, 5, 25, 25)
+        if self.bilateral:
+
+            # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#bilateralfilter
+            disparity = cv2.bilateralFilter(disparity, 5, 25, 25)
 
         return disparity
 

@@ -6,9 +6,8 @@ from yolo import YOLO
 from stereo.wls import WLS
 
 MASTER_PATH_TO_DATASET = "TTBB-durham-02-10-17-sub10"
-LEFT_DIR = "left-images-TTBB-durham-02-10-17-sub10"
-RIGHT_DIR = "right-images-TTBB-durham-02-10-17-sub10"
-
+LEFT_DIR = "left-images"
+RIGHT_DIR = "right-images"
 
 def images(start=""):
     """
@@ -41,7 +40,7 @@ SAVE_IMAGES = True
 
 if SAVE_IMAGES:
 
-    image_output_path = os.path.join("output", "TTBB-durham-02-10-17-sub10")
+    image_output_path = os.path.join("output", "images")
     disparities_output_path = os.path.join("output", "disparities")
 
     if not os.path.exists("output"):
@@ -71,9 +70,7 @@ for left_file, right_file, left_file_path, right_file_path in images():
 
     disparity_map = wls.calculate(left, right)
 
-    left_filtered = cv2.bilateralFilter(left, 5, 25, 25)
-
-    class_IDs, confidences, boxes = yolo.predict(left_filtered[0:390, :])
+    class_IDs, confidences, boxes = yolo.predict(left[0:390, :])
 
     smallest_distance = np.inf
 
@@ -105,7 +102,7 @@ for left_file, right_file, left_file_path, right_file_path in images():
 
     if SAVE_IMAGES:
 
-        out_image_path = os.path.join("output", "TTBB-durham-02-10-17-sub10", left_file)
+        out_image_path = os.path.join("output", "images", left_file)
         out_disparity_path = os.path.join("output", "disparities", left_file)
 
         cv2.imwrite(out_disparity_path, wls.to_image(disparity_map))

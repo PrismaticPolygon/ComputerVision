@@ -8,9 +8,9 @@ class WLS(Disparity):
     Class encapsulating the Weighted Least Squares stereo filter.
     """
 
-    def __init__(self, histogram="CLAHE"):
+    def __init__(self, histogram="CLAHE", bilateral=True):
 
-        super().__init__(histogram=histogram)
+        super().__init__(histogram=histogram, bilateral=bilateral)
 
         window_size = 3
 
